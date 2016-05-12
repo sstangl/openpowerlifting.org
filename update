@@ -1,0 +1,4 @@
+#!/bin/sh
+
+cp -r ~/dev/openpowerlifting/web/* ./
+cp ~/dev/openpowerlifting/build/*.js scripts/
