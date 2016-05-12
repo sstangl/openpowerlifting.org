@@ -11,6 +11,17 @@ body {
   font-family: verdana,helvetica,arial,sans-serif;
 }
 
+#oplurl {
+  color: red;
+}
+
+#construction-left {
+  float: left;
+}
+#construction-right {
+  float: right;
+}
+
 #header {
   margin: 10px;
   text-align: center;
