@@ -1,95 +1,55 @@
 // vim: set ts=4 sts=4 sw=4 et:
 'use strict';
 
-var results = document.getElementById("results");
+var grid; // The SlickGrid.
+var sortCol = {id: 'wilks'}; // Initial column sorting information.
+var sortAsc = false; // Initial column sorting information.
+var searchInfo = {laststr: ''};
+
 var boxRaw = document.getElementById("raw");
 var boxWraps = document.getElementById("wraps");
 var boxSingle = document.getElementById("single");
 var boxMulti = document.getElementById("multi");
 var boxMen = document.getElementById("men");
 var boxWomen = document.getElementById("women");
-var boxAllResults = document.getElementById("showall");
-var boxOldschool = document.getElementById("oldschool");
-var btnShowMore = document.getElementById("showmore");
 var selWeightType = document.getElementById("weighttype");
-var selClass = document.getElementById("class");
-
-// Toggle between pounds or kilograms, used by weight().
-var usingLbs = true;
-
-// The column on which to sort.
-var sortByGlobal = WILKS;
-
+var selClass = document.getElementById("weightclass");
+var selFed = document.getElementById("fedselect");
+var searchfield = document.getElementById("searchfield");
+var searchbutton = document.getElementById("searchbutton");
 
 function weight(kg) {
     if (kg === undefined)
         return '';
-    if (!usingLbs)
+    if (selWeightType.value === "kg")
         return String(kg);
-    return String(Math.round(kg * 2.2042262 * 100) / 100);
+    return String(common.kg2lbs(kg));
 }
 
-function number(num) {
-    if (num === undefined)
+function parseWeightClass(x) {
+    if (x === undefined)
         return '';
-    return String(num);
+    if (selWeightType.value === "kg")
+        return String(x);
+    if (typeof x === 'number')
+        return String(Math.round(common.kg2lbs(x)));
+    return String(Math.round(common.kg2lbs(x.split('+')[0]))) + '+';
 }
 
-function string(str) {
-    if (str === undefined)
-        return '';
-    return str;
-}
-
-
-function maketd(str) {
-    var td = document.createElement('td');
-    td.appendChild(document.createTextNode(str));
-    return td;
-}
-
-
-// Make the HTML for a single database row.
-function makeentry(row, i) {
-    var tr = document.createElement('tr');
-    tr.appendChild(maketd(String(i+1)));
-    tr.appendChild(maketd(string(row[NAME])));
-    tr.appendChild(maketd(string(row[SEX])));
-    tr.appendChild(maketd(number(row[AGE])));
-    tr.appendChild(maketd(weight(row[BODYWEIGHTKG])));
-    tr.appendChild(maketd(weight(row[BESTSQUATKG])));
-    tr.appendChild(maketd(weight(row[BESTBENCHKG])));
-    tr.appendChild(maketd(weight(row[BESTDEADLIFTKG])));
-    tr.appendChild(maketd(weight(row[TOTALKG])));
-    tr.appendChild(maketd(number(row[WILKS])));
-    tr.appendChild(maketd(number(row[MCCULLOCH])));
-    return tr;
-}
-
-
-// Fills in the <tbody> given the current selection state.
-function redraw() {
-    // Remove existing children.
-    while (results.lastChild) {
-        results.removeChild(results.lastChild);
-    }
-
+// Return the ordered list of rows to display, by index into opldb.data.
+function getIndices() {
     // Update the global pounds setting.
-    // TODO: This should be carried in a local variable to avoid poking the global.
-    if (selWeightType.value == "lb")
-        usingLbs = true;
-    else
-        usingLbs = false;
 
     // Determine the filter to be used.
     var raw = boxRaw.checked;
     var wraps = boxWraps.checked;
     var single = boxSingle.checked;
     var multi = boxMulti.checked;
-    var oldschool = boxOldschool.checked;
     var men = boxMen.checked;
     var women = boxWomen.checked;
-    var allresults = boxAllResults.checked;
+
+    var selectonfed = (selFed.value !== "all");
+    var fed = selFed.value;
 
     var selectonclass = (selClass.value !== "all");
     var bw_min = 0.0; // Exclusive
@@ -150,51 +110,182 @@ function redraw() {
     function filter(row) {
         if (!men && !women)
             return false;
-        if (!men && row[SEX] == 'M')
+        if (!men && row[opldb.SEX] == 'M')
             return false;
-        if (!women && row[SEX] == 'F')
+        if (!women && row[opldb.SEX] == 'F')
             return false;
 
         if (selectonclass) {
-            var bw = row[BODYWEIGHTKG];
-            if (bw <= bw_min || bw > bw_max)
+            var bw = row[opldb.BODYWEIGHTKG];
+            if (bw === undefined || bw <= bw_min || bw > bw_max)
                 return false;
         }
 
-        var e = row[EQUIPMENT];
+        if (selectonfed) {
+            var meetrow = meetdb.data[row[opldb.MEETID]];
+            if (meetrow[meetdb.FEDERATION] !== fed) {
+                return false;
+            }
+        }
+
+        var e = row[opldb.EQUIPMENT];
         return (raw && e == "Raw") ||
                (wraps && e == "Wraps") ||
                (single && e == "Single-ply") ||
-               (multi && e == "Multi-ply") ||
-               (oldschool && e == "Oldschool");
+               (multi && e == "Multi-ply");
     }
 
     var indices = db_make_indices_list();
     indices = db_filter(indices, filter);
-    indices = db_sort_numeric_maxfirst(indices, sortByGlobal);
+
+    if (sortAsc)
+        indices = db_sort_numeric_minfirst(indices, common.colidToIndex(sortCol.id));
+    else
+        indices = db_sort_numeric_maxfirst(indices, common.colidToIndex(sortCol.id));
+
     indices = db_uniq_lifter(indices);
-
-    var ntoshow = indices.length;
-    if (allresults === false) {
-        ntoshow = Math.min(500, indices.length);
-        var left = indices.length - ntoshow;
-        if (left > 500) {
-            btnShowMore.style.visibility = "";
-            btnShowMore.innerText = String(indices.length - ntoshow) + " more... (Slow)"
-        } else {
-            btnShowMore.style.visibility = "hidden";
-        }
-    }
-
-    var frag = document.createDocumentFragment();
-    for (var i = 0; i < ntoshow; i++) {
-        var row = opldb[indices[i]];
-        frag.appendChild(makeentry(row, i));
-    }
-
-    results.appendChild(frag);
+    return indices;
 }
 
+
+function weightMax(row, cola, colb) {
+    var a = row[cola];
+    var b = row[colb];
+    if (a === undefined)
+        return weight(b);
+    if (b === undefined)
+        return weight(a);
+    return weight(Math.max(a,b));
+}
+
+
+function makeItem(row, index) {
+    var meetrow = meetdb.data[row[opldb.MEETID]];
+    var name = row[opldb.NAME];
+
+    var country = common.string(meetrow[meetdb.MEETCOUNTRY]);
+    var state = common.string(meetrow[meetdb.MEETSTATE]);
+
+    var location = country;
+    if (country && state) {
+        location = location + "-" + state;
+    }
+
+    return {
+        rank:        index+1,
+        searchname:  name.toLowerCase(),
+        name:        '<a href="lifters.html?q='+name+'">'+name+'</a>',
+        fed:         common.string(meetrow[meetdb.FEDERATION]),
+        date:        common.string(meetrow[meetdb.DATE]),
+        location:    location,
+        sex:         common.string(row[opldb.SEX]),
+        age:         common.string(row[opldb.AGE]),
+        equip:       common.parseEquipment(row[opldb.EQUIPMENT]),
+        bw:          weight(row[opldb.BODYWEIGHTKG]),
+        weightclass: parseWeightClass(row[opldb.WEIGHTCLASSKG]),
+        squat:       weightMax(row, opldb.BESTSQUATKG, opldb.SQUAT4KG),
+        bench:       weightMax(row, opldb.BESTBENCHKG, opldb.BENCH4KG),
+        deadlift:    weightMax(row, opldb.BESTDEADLIFTKG, opldb.DEADLIFT4KG),
+        total:       weight(row[opldb.TOTALKG]),
+        wilks:       common.number(row[opldb.WILKS]),
+        mcculloch:   common.number(row[opldb.MCCULLOCH])
+    };
+}
+
+
+function makeDataProvider() {
+    var indices = getIndices();
+
+    return {
+        getLength: function () { return indices.length; },
+        getItem: function(index) { return makeItem(opldb.data[indices[index]], index); }
+    };
+}
+
+
+function redraw() {
+    var source = makeDataProvider();
+    grid.setData(source);
+    grid.invalidateAllRows();
+    grid.render();
+}
+
+
+function _search_from(query, rowid) {
+    var data = grid.getData();
+    var numrows = data.getLength();
+
+    for (var i = rowid; i < numrows; ++i) {
+        var row = data.getItem(i);
+        if (row.searchname.indexOf(query) >= 0) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+
+function search() {
+    var query = searchfield.value.toLowerCase().trim().replace("  "," ");
+    if (!query) {
+        return;
+    }
+
+    var startrowid = 0;
+    // If the search string hasn't changed, do a "next"-style search.
+    if (query === searchInfo.laststr) {
+        startrowid = grid.getViewport().top + 1;
+    }
+
+    var rowid = _search_from(query, startrowid);
+
+    // If nothing was found in "next" mode, try searching again from the top.
+    if (startrowid > 0 && rowid == -1) {
+        rowid = _search_from(query, 0);
+    }
+
+    if (rowid >= 0) {
+        var numColumns = grid.getColumns().length;
+
+        grid.scrollRowToTop(rowid);
+        for (var i = 0; i < numColumns; ++i) {
+            grid.flashCell(rowid, i, 100);
+        }
+
+        searchInfo.laststr = query;
+        searchbutton.innerHTML = "Next";
+    }
+}
+
+
+function onResize(evt) {
+    grid.resizeCanvas();
+}
+
+
+function searchOnEnter(keyevent) {
+    // keyCode is deprecated, but non-Firefox-desktop doesn't support key.
+    if (keyevent.keyCode === 13 || keyevent.key === "Enter") {
+        search();
+    }
+}
+
+function scrollOnPageUpDown(keyevent) {
+    if (keyevent.keyCode === 33 || keyevent.key === "page up") {
+        grid.scrollRowToTop(grid.getViewport().top - 5);
+    } else if (keyevent.keyCode === 34 || keyevent.key === "page down") {
+        grid.scrollRowToTop(grid.getViewport().top + 5);
+    }
+}
+
+function addSelectorListeners(selector) {
+    selector.addEventListener("change", redraw);
+    selector.addEventListener("keydown", function()
+        {
+            setTimeout(redraw, 0);
+        }
+    );
+}
 
 function addEventListeners() {
     boxRaw.addEventListener("click", redraw);
@@ -203,70 +294,102 @@ function addEventListeners() {
     boxMulti.addEventListener("click", redraw);
     boxMen.addEventListener("click", redraw);
     boxWomen.addEventListener("click", redraw);
-    boxOldschool.addEventListener("click", redraw);
 
-    boxAllResults.addEventListener("click", function()
-        {
-            if (boxAllResults.checked) {
-                btnShowMore.style.visibility = "hidden";
-            } else {
-                btnShowMore.style.visibility = "";
-            }
-            redraw();
-        }
-    );
+    addSelectorListeners(selWeightType);
+    addSelectorListeners(selClass);
+    addSelectorListeners(selFed);
 
-    selWeightType.addEventListener("change", redraw);
-    selWeightType.addEventListener("keydown", function()
-        {
-            setTimeout(redraw, 0);
-        }
-    );
+    searchfield.addEventListener("keypress", searchOnEnter, false);
+    searchbutton.addEventListener("click", search, false);
 
-    selClass.addEventListener("change", redraw);
-    selClass.addEventListener("keydown", function()
-        {
-            setTimeout(redraw, 0);
-        }
-    );
+    $("#searchfield").on("input", function () {
+        searchbutton.innerHTML = "Search";
+    });
 
-    var sortables = document.getElementsByClassName("sortable");
-    for (var i = 0; i < sortables.length; ++i) {
-        sortables[i].addEventListener("click", function(e)
-            {
-                if (e.target.id == "sort-bw")
-                    sortByGlobal = BODYWEIGHTKG;
-                else if (e.target.id == "sort-squat")
-                    sortByGlobal = BESTSQUATKG;
-                else if (e.target.id == "sort-bench")
-                    sortByGlobal = BESTBENCHKG;
-                else if (e.target.id == "sort-deadlift")
-                    sortByGlobal = BESTDEADLIFTKG;
-                else if (e.target.id == "sort-total")
-                    sortByGlobal = TOTALKG;
-                else if (e.target.id == "sort-wilks")
-                    sortByGlobal = WILKS;
-                else if (e.target.id == "sort-mcculloch")
-                    sortByGlobal = MCCULLOCH;
-                redraw();
-            }
-        );
-    }
+    $(window).on("keydown", scrollOnPageUpDown);
 
-    btnShowMore.addEventListener("click", function ()
-        {
-            boxAllResults.checked = true;
-            btnShowMore.style.visibility = "hidden";
-            redraw();
-        }
-    );
+    window.addEventListener("resize", onResize, false);
 }
 
 
 function onload() {
     addEventListeners();
-    redraw();
-};
+
+    var nameWidth = 200;
+    var shortWidth = 40;
+    var dateWidth = 80;
+    var numberWidth = 56;
+
+    function urlformatter(row, cell, value, columnDef, dataContext) {
+        return value;
+    }
+
+    var columns = [
+        {id: "filler", width: 20, minWidth: 20, focusable: false,
+                       selectable: false, resizable: false},
+        {id: "rank", name: "Rank", field: "rank", width: numberWidth},
+        {id: "name", name: "Name", field: "name", width: nameWidth, formatter: urlformatter},
+        {id: "fed", name: "Fed", field: "fed", width: numberWidth},
+        {id: "date", name: "Date", field: "date", width: dateWidth},
+        {id: "location", name: "Location", field: "location", width:dateWidth},
+        {id: "sex", name: "Sex", field: "sex", width: shortWidth},
+        {id: "age", name: "Age", field: "age", width: shortWidth,
+                    sortable: true, defaultSortAsc: false},
+        {id: "equip", name: "Equip", field: "equip", width: shortWidth},
+        {id: "weightclass", name: "Class", field: "weightclass", width: numberWidth},
+        {id: "bw", name: "Weight", field: "bw", width: numberWidth,
+                   sortable: true, defaultSortAsc: false},
+        {id: "squat", name: "Squat", field: "squat", width: numberWidth,
+                      sortable: true, defaultSortAsc: false},
+        {id: "bench", name: "Bench", field: "bench", width: numberWidth,
+                      sortable: true, defaultSortAsc: false},
+        {id: "deadlift", name: "Deadlift", field: "deadlift", width: numberWidth,
+                         sortable: true, defaultSortAsc: false},
+        {id: "total", name: "Total", field: "total", width: numberWidth,
+                      sortable: true, defaultSortAsc: false},
+        {id: "wilks", name: "Wilks", field: "wilks", width: numberWidth,
+                      sortable: true, defaultSortAsc: false},
+        {id: "mcculloch", name: "McCulloch", field: "mcculloch", width: numberWidth+10,
+                      sortable: true, defaultSortAsc: false}
+    ];
+
+    var options = {
+        enableColumnReorder: false,
+        forceSyncScrolling: true,
+        forceFitColumns: true,
+        rowHeight: 23,
+        topPanelHeight: 23,
+        cellFlashingCssClass: "searchflashing"
+    };
+
+    var query = common.getqueryobj();
+    if (query.fed !== undefined) {
+        selFed.value = query.fed;
+    }
+
+    var data = makeDataProvider();
+    grid = new Slick.Grid("#theGrid", data, columns, options);
+    grid.setSortColumn(sortCol.id, sortAsc);
+
+    grid.onSort.subscribe(function(e, args) {
+        sortCol = args.sortCol;
+        sortAsc = args.sortAsc;
+        redraw();
+    });
+
+    // From a post on StackOverflow.
+    function numberWithCommas(x) {
+        return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    }
+
+    // A very simple, pretty ugly count of number of database rows.
+    // Hopefully this is a simple way for people to see that the
+    // site is changing.
+    var numentries = document.getElementById("numentries");
+    numentries.innerText = "(" + numberWithCommas(opldb.data.length) + " Entries)";
+
+    search();
+}
 
 
 document.addEventListener("DOMContentLoaded", onload);

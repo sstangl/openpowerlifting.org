@@ -1,4 +1,5 @@
 #!/bin/sh
-
-cp -r ~/dev/openpowerlifting/web/* ./
-cp ~/dev/openpowerlifting/build/*.js scripts/
+cp -r ~/dev/openpowerlifting/web/build/* ./
+cp ~/dev/openpowerlifting/build/openpowerlifting.csv ./
+cp ~/dev/openpowerlifting/build/meets.csv ./
+git add .
