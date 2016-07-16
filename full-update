@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+
+./update
+git commit -a --amend -m "Update site."
+git gc
+git push --force --atomic

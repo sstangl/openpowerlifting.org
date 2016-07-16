@@ -1,85 +1,338 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="utf-8">
-    <title>Open Powerlifting</title>
-    <link rel="stylesheet" type="text/css" href="slick.grid.css"/>
-    <script src="scripts/jquery-slickgrid-2.2.6.min.js"></script>
-    <script src="scripts/openpowerlifting.js"></script>
-    <script src="scripts/meets.js"></script>
-    <script src="scripts/common.js"></script>
-    <script src="scripts/database.js"></script>
-    <script src="scripts/main-index.js" defer></script>
-    <link rel="stylesheet" type="text/css" href="style.css"/>
-  </head>
-  <body>
-    <div class="flexbox">
+<head>
+  <link rel="stylesheet" type="text/css" href="static/slick.grid.css" />
+  <script src="static/scripts/jquery-slickgrid-2.2.6.min.js"></script>
+<title>OpenPowerlifting</title>
+<meta charset="utf-8">
+<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<link rel="stylesheet" type="text/css" href="static/style.css"/>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-82103130-1', 'auto');
+  ga('send', 'pageview');
+</script>
+  <script src="static/scripts/social-media.js"></script>
+  <script src="static/scripts/openpowerlifting.js"></script>
+  <script src="static/scripts/meets.js"></script>
+  <script src="static/scripts/common.bundle.js"></script>
+  <script src="static/scripts/index.bundle.js" defer></script>
+</head>
+<body>
+  <div class="flexbox">
 <div id="header">
-OpenPowerlifting &mdash;
-Rankings
-<a href="meetlist.html">Meets</a>
-<a href="https://github.com/sstangl/openpowerlifting">Source</a>
- (92,330 Entries)
+<img class="header-logo" src="static/images/logo-compressed.svg" alt="OpenPowerlifting"/>
+<a href="index.html" class="nav__link nav__link--active">Rankings</a>
+<a href="meetlist.html" class="nav__link ">Meets</a>
+<a href="data.html" class="nav__link ">Data</a>
+<a href="faq.html" class="nav__link ">FAQ</a>
+<a href="contact.html" class="nav__link ">Contact</a>
+<a href="https://www.patreon.com/openpowerlifting" class="nav__link" rel="noopener" target="_blank">Support Us&nbsp;<img style="height: 15px; width: 15px"src="static/images/patreon_navigation_logo_mini_orange.png"/></a>
+<a href="https://instagram.com/openpowerlifting" class="nav__link" rel="noopener" target="_blank"><i class="fa fa-instagram"></i></a>
+<a href="https://facebook.com/openpowerlifting" class=" nav__link" rel="noopener" target="_blank"><i class="fa fa-facebook"></i></a>
+<a class="nav__link header-hamburger" href="javascript:void(0)" onClick="document.getElementById('header').classList.toggle('responsive')">&#9776;</a>
+<span class="siteinfo">
+640,507 Entries &mdash; 13,243 Meets &mdash; Updated 2018-06-29
+</span>
 </div>
     <div id="controls">
       <div id="controls-left">
+        <select id="equipmentselect">
+          <option value="raw">Raw</option>
+          <option value="wraps">Wraps</option>
+          <option value="raw_wraps" selected>Raw+Wraps</option>
+          <option value="single">Single-ply</option>
+          <option value="multi">Multi-ply</option>
+        </select>
+<!--
+  These values are also hard-coded in web/scripts/main-index.js
+-->
+<select id="weightclass">
+  <option value="all" selected>All Classes</option>
+  <optgroup label="Traditional">
+    <option value="t44">-44</option>
+    <option value="t48">-48</option>
+    <option value="t52">-52</option>
+    <option value="t56">-56</option>
+    <option value="t60">-60</option>
+    <option value="t67.5">-67.5</option>
+    <option value="t75">-75</option>
+    <option value="t82.5">-82.5</option>
+    <option value="t90">-90</option>
+    <option value="t90+">90+</option>
+    <option value="t100">-100</option>
+    <option value="t110">-110</option>
+    <option value="t125">-125</option>
+    <option value="t140">-140</option>
+    <option value="t140+">140+</option>
+  </optgroup>
+  <optgroup label="IPF Men">
+    <option value="m53">-53</option>
+    <option value="m59">-59</option>
+    <option value="m66">-66</option>
+    <option value="m74">-74</option>
+    <option value="m83">-83</option>
+    <option value="m93">-93</option>
+    <option value="m105">-105</option>
+    <option value="m120">-120</option>
+    <option value="m120+">120+</option>
+  </optgroup>
+  <optgroup label="IPF Women">
+    <option value="f43">-43</option>
+    <option value="f47">-47</option>
+    <option value="f52">-52</option>
+    <option value="f57">-57</option>
+    <option value="f63">-63</option>
+    <option value="f72">-72</option>
+    <option value="f84">-84</option>
+    <option value="f84+">84+</option>
+  </optgroup>
+</select>
+<select id="fedselect">
+  <option value="all" selected>All Feds</option>
+  <option value="AAU,ADAU,ADFPA,ADFPF,AEP,AfricanPF,APU,AsianPF,BP,BVDK,CommonwealthPF,CPU,CSST,DSF,EPA,EPF,FALPO,FEMEPO,FESUPO,FFForce,FPR,IDFPF,IPF,IrishPF,JPA,KRAFT,LPF,NAPF,NASA,NIPF,NordicPF,NSF,NZPF,OceaniaPF,ParaPL,PA,PLZS,PZKFiTS,RAW,RAW-CAN,ScottishPL,SSF,SVNL,THSPA,USAPL,WABDL,WDFPF,WelshPA,WNPF">
+    All Drug-Tested Feds
+  </option>
+  <optgroup label="International">
+    <option value="GPA">GPA - Global Powerlifting Alliance (Incomplete)</option>
+    <option value="GPC">GPC - Global Powerlifting Committee (Incomplete)</option>
+    <option value="IPF">IPF - International Powerlifting Federation</option>
+    <option value="IPL">IPL - International Powerlifting League (Incomplete)</option>
+    <option value="ParaPL">ParaPL - Para Powerlifting (Incomplete)</option>
+    <option value="WABDL">WABDL - World Association of Bench Pressers and Deadlifters (Incomplete)</option>
+    <option value="WDFPF">WDFPF - World Drug-Free Powerlifting Federation (Incomplete)</option>
+    <option value="WPA">WPA - World Powerlifting Alliance (Incomplete)</option>
+    <option value="WPC">WPC - World Powerlifting Congress (Incomplete)</option>
+    <option value="WPF">WPF - World Powerlifting Federation (Incomplete)</option>
+    <option value="WUAP">WUAP - World United Amateur Powerlifting (Incomplete)</option>
+  </optgroup>
+  <optgroup label="Regional">
+    <option value="AfricanPF">AfricanPF - African Powerlifting Federation [IPF] (Incomplete)</option>
+    <option value="AsianPF">AsianPF - Asian Powerlifting Federation [IPF] (Incomplete)</option>
+    <option value="CommonwealthPF">CommonwealthPF - Commonwealth Powerlifting Federation [IPF]</option>
+    <option value="EPF">EPF - European Powerlifting Federation [IPF] (Incomplete)</option>
+    <option value="FESUPO">FESUPO - Federación Sudamericana de Powerlifting [IPF]</option>
+    <option value="NAPF">NAPF - North American Powerlifting Federation [IPF] (Incomplete)</option>
+    <option value="NordicPF">NordicPF - Nordic Powerlifting Federation [IPF]</option>
+    <option value="OceaniaPF">OceaniaPF - Oceania Powerlifting Federation</option>
+  </optgroup>
+  <optgroup label="United States">
+    <option value="365Strong,AAU,ADAU,ADFPA,ADFPF,APA,APC,APF,Hardcore,HERC,IPA,PRIDE,MHP,MM,NASA,NOTLD,RAW,RAWU,RPS,RUPC,SPF,THSPA,UPA,USAPL,USPA,USPF,XPC,WNPF">
+      All United States Feds
+    </option>
+    <option value="365Strong">365Strong - 365 Strong Powerlifting Federation</option>
+    <option value="AAU">AAU - Amateur Athletic Union (Incomplete)</option>
+    <option value="ADAU">ADAU - Anti Drug Athletes United (Incomplete)</option>
+    <option value="ADFPF">ADFPF - American Drug Free Powerlifting Federation (Incomplete)</option>
+    <option value="APA">APA - American Powerlifting Association [WPA] (Incomplete)</option>
+    <option value="APC">APC - American Powerlifting Committee [GPA/IPO] (Incomplete)</option>
+    <option value="APF">APF - American Powerlifting Federation [WPC] (Help Needed!)</option>
+    <option value="Hardcore">Hardcore - Hardcore Powerlifting</option>
+    <option value="HERC">HERC - Hercules</option>
+    <option value="IPA">IPA - International Powerlifting Association (2014+)</option>
+    <option value="PRIDE">PRIDE - Pride Powerlifting</option>
+    <option value="MHP">MHP - Maximum Human Performance (Incomplete)</option>
+    <option value="MM">MM - Metal Militia (Incomplete)</option>
+    <option value="NASA">NASA - Natural Athlete Strength Association (2016+)</option>
+    <option value="NOTLD">NOTLD - Night of the Living Deadlift</option>
+    <option value="RAW">RAW - 100% RAW Powerlifting Federation (Help Needed!)</option>
+    <option value="RAWU">RAWU - Raw United Powerlifting Federation (Incomplete)</option>
+    <option value="RPS">RPS - Revolution Powerlifting Syndicate</option>
+    <option value="RUPC">RUPC - Raw Unity Powerlifting Championships</option>
+    <option value="SPF">SPF - Southern Powerlifting Federation</option>
+    <option value="THSPA">THSPA - Texas High School Powerlifting Assocation (Single-ply)</option>
+    <option value="UPA">UPA - United Powerlifting Association</option>
+    <option value="ADFPA,USAPL">USAPL - USA Powerlifting [IPF] (2014+)</option>
+    <option value="USPA">USPA - United States Powerlifting Association [IPL]</option>
+    <option value="USPF">USPF - United States Powerlifting Federation (Incomplete)</option>
+    <option value="XPC">XPC - Xtreme Powerlifting Coalition</option>
+    <option value="WNPF">WNPF - World Natural Powerlifting Federation</option>
+  </optgroup>
+  <optgroup label="Argentina">
+    <option value="AAP,FALPO,FEPOA">
+      All Argentinian Feds
+    </option>
+    <option value="AAP">AAP - Alianza Argentina Powerlifting [GPA/IPO]</option>
+    <option value="FALPO">FALPO - Federación Argentina de Levantamiento de Potencia [IPF]</option>
+    <option value="FEPOA">FEPOA - Federación de Powerlifting Argentino [GPC]</option>
+  </optgroup>
+  <optgroup label="Australia">
+    <option value="APU,CAPO,GPC-AUS,PA,ProRaw">
+      All Australian Feds
+    </option>
+    <option value="APU">APU - Australian Powerlifting Union</option>
+    <option value="CAPO">CAPO - CAPO Powerlifting [WPC/GPA/IPO] (2017+)</option>
+    <option value="GPC-AUS">GPC-AUS - GPC Australia [GPC] (Help Needed!)</option>
+    <option value="PA">PA - Powerlifting Australia (2008+)</option>
+    <option value="ProRaw">ProRaw</option>
+    <option value="WRPF-AUS">WRPF-AUS - WRPF Australia [WRPF] (Incomplete)</option>
+  </optgroup>
+  <optgroup label="Canada">
+    <option value="CPF,CPL,CPU,GPC-CAN,RAW-CAN,WRPF-CAN">
+      All Canadian Feds
+    </option>
+    <option value="CPF">CPF - Canadian Powerlifting Federation [WPC] (2016+)</option>
+    <option value="CPL">CPL - Canadian Powerlifting League [IPL]</option>
+    <option value="CPO">CPO - Canadian Powerlifting Organisation [WPC]</option>
+    <option value="CPU">CPU - Canadian Powerlifting Union [GPC]</option>
+    <option value="GPC-CAN">GPC-CAN - GPC Canada [GPC] (Incomplete)</option>
+    <option value="RAW-CAN">RAW-CAN - 100% RAW Powerlifting Federation Canada (Incomplete)</option>
+    <option value="WRPF-CAN">WRPF-CAN - WRPF Canada [WRPF]</option>
+  </optgroup>
+  <optgroup label="Czechia">
+    <option value="CSST">CSST - Český Svaz Silového Trojboje [IPF]</option>
+  </optgroup>
+  <optgroup label="Denmark">
+    <option value="DSF">DSF - Dansk Styrkeløft Forbund [IPF]</option>
+  </optgroup>
+  <optgroup label="Finland">
+    <option value="FPO,SVNL">
+      All Finnish Feds
+    </option>
+    <option value="FPO">FPO - Finland Powerlifting Organization [IPA] (Incomplete)</option>
+    <option value="SVNL">SVNL - Suomen Voimanostoliitto ry [IPF]</option>
+  </optgroup>
+  <optgroup label="France">
+    <option value="FFForce">FFForce - Fédération Française de Force [IPF] (Incomplete)</option>
+  </optgroup>
+  <optgroup label="Germany">
+    <option value="BVDK,GPU">
+      All German Feds
+    </option>
+    <option value="BVDK">BVDK - Bundesverband Deutscher Kraftdreikämpf [IPF] (Incomplete)</option>
+    <option value="GPU">GPU - German Powerlifting Union [WPU] (Incomplete)</option>
+  </optgroup>
+  <optgroup label="Iceland">
+    <option value="KRAFT">KRAFT - Kraftlyftingasamband Íslands [IPF]</option>
+  </optgroup>
+  <optgroup label="Ireland">
+    <option value="GPC-IRL,IDFPF,IrishPF,IrishPO">
+      All Irish Feds
+    </option>
+    <option value="GPC-IRL">GPC-IRL - GPC Ireland [GPC] (Incomplete)</option>
+    <option value="IDFPF">IDFPF - Irish Drug-Free Powerlifting Federation [WDFPF]</option>
+    <option value="IrishPF">IrishPF - Irish Powerlifting Federation [IPF]</option>
+    <option value="IrishPO">IrishPO - Irish Powerlifting Organization [IPL] (Incomplete)</option>
+  </optgroup>
+  <optgroup label="Japan">
+    <option value="JPA">JPA - Japan Powerlifting Federation [IPF] (Incomplete)</option>
+  </optgroup>
+  <optgroup label="Latvia">
+    <option value="LPF">LPF - Latvijas Pauerliftinga Federācija [IPF] (Incomplete)</option>
+  </optgroup>
+  <optgroup label="Malaysia">
+    <option value="MPA">MPA - Malaysian Powerlifting Alliance [GPA] (Incomplete)</option>
+  </optgroup>
+  <optgroup label="Mexico">
+    <option value="FEMEPO">FEMEPO - Federación Mexicana de Powerlifting A.C. [IPF] (Incomplete)</option>
+  </optgroup>
+  <optgroup label="New Zealand">
+    <option value="GPC-NZ">GPC-NZ - GPC New Zealand [GPC]</option>
+    <option value="NZPF">NZPF - New Zealand Powerlifting Federation [IPF]</option>
+  </optgroup>
+  <optgroup label="Norway">
+    <option value="NSF">NSF - Norges Styrkeløftforbund [IPF]</option>
+  </optgroup>
+  <optgroup label="Poland">
+    <option value="PZKFiTS">PZKFiTS - Polski Związek Kulturystyki Fitness [IPF] (Incomplete)</option>
+  </optgroup>
+  <optgroup label="Portugal">
+    <option value="WPC-Portugal">WPC-Portugal - WPC Portugal [WPC] (Incomplete)</option>
+  </optgroup>
+  <optgroup label="Russia">
+    <option value="BB,FPR,SCT,WPC-RUS,WRPF">
+      All Russian Feds
+    </option>
+    <option value="BB">BB - Bogatyr Brotherhood [GPA]</option>
+    <option value="FPR">FPR - Russian Powerlifting Federation [IPF] (Incomplete)</option>
+    <option value="NAP">NAP - National Association of Powerlifting [IPA]</option>
+    <option value="SCT">SCT - Super-Cup of Titans (Single-ply)</option>
+    <option value="WPC-RUS">WPC-RUS - WPC Russia (Incomplete)</option>
+    <option value="WRPF">WRPF - World Raw Powerlifting Federation (Incomplete)</option>
+  </optgroup>
+  <optgroup label="Singapore">
+    <option value="SPA">SPA - Singapore Powerlifting Alliance [GPA] (Incomplete)</option>
+  </optgroup>
+  <optgroup label="Slovenia">
+    <option value="PLZS">PLZS - Powerlifting zveza Slovenije [IPF]</option>
+  </optgroup>
+  <optgroup label="Spain">
+    <option value="AEP">AEP - Asociación Española de Powerlifting [IPF] (Incomplete)</option>
+  </optgroup>
+  <optgroup label="Sweden">
+    <option value="SSF">SSF - Svenska Styrkelyft Förbundet [IPF]</option>
+  </optgroup>
+  <optgroup label="Ukraine">
+    <option value="WPAU">WPAU - World Powerlifting Alliance Ukraine [WPA] (Incomplete)</option>
+  </optgroup>
+  <optgroup label="United Kingdom">
+    <option value="BP,BPC,BPU,EPA,GPC-GB,NIPF,ScottishPL,WelshPA">
+      All United Kingdom Feds
+    </option>
+    <option value="BP,EPA,NIPF,ScottishPL,WelshPA">BP - British Powerlifting [IPF] (2017+)</option>
+    <option value="BPC">BPC - British Powerlifting Congress [WPC] (Incomplete)</option>
+    <option value="BPU">BPU - British Powerlifting Union [WPC] (Incomplete)</option>
+    <option value="EPA">EPA - English Powerlifting Association [IPF] (Incomplete)</option>
+    <option value="GPC-GB">GPC-GB - GPC Great Britain [GPC] (Help Needed!)</option>
+    <option value="NIPF">NIPF - Northern Ireland Powerlifting Federation [IPF]</option>
+    <option value="ScottishPL">ScottishPL - Scottish Powerlifting [IPF] (Incomplete)</option>
+    <option value="WelshPA">WelshPA - Welsh Powerlifting Association [IPF] (Incomplete)</option>
+  </optgroup>
+  <optgroup label="Vietnam">
+    <option value="VietnamPA">VietnamPA - Vietnam Powerlifting Alliance [GPA] (Incomplete)</option>
+  </optgroup>
+</select>
+        <select id="yearselect">
+          <option value="all">All Years</option>
+          <option value="2018">2018</option>
+          <option value="2017">2017</option>
+          <option value="2016">2016</option>
+          <option value="2015">2015</option>
+          <option value="2014">2014</option>
+        </select>
+        <select id="sexselect">
+          <option value="all" selected>All Sexes</option>
+          <option value="M">Men</option>
+          <option value="F">Women</option>
+        </select>
+        <select id="sortselect">
+          <option value="squat">By Squat</option>
+          <option value="bench">By Bench</option>
+          <option value="deadlift">By Deadlift</option>
+          <option value="total">By Total</option>
+          <option value="wilks" selected>By Wilks</option>
+        </select>
+      </div>
+      <div id="controls-right">
 <input type="text" id="searchfield" autofocus/>
 <button id="searchbutton">Search</button>
-      </div>
-      <div id ="controls-right">
-      <input type="checkbox" id="raw" checked="true"/>
-      <label for="raw"><span></span>Raw</label>
-      <input type="checkbox" id="wraps" checked="true"/>
-      <label for="wraps"><span></span>Wraps</label>
-      <input type="checkbox" id="single"/>
-      <label for="single"><span></span>Single</label>
-      <input type="checkbox" id="multi"/>
-      <label for="multi"><span></span>Multi</label>
-      <select id="weightclass">
-        <option value="all" selected>All Classes</option>
-        <option value="-44">-44</option>
-        <option value="-48">-48</option>
-        <option value="-52">-52</option>
-        <option value="-56">-56</option>
-        <option value="-60">-60</option>
-        <option value="-67.5">-67.5</option>
-        <option value="-75">-75</option>
-        <option value="-82.5">-82.5</option>
-        <option value="-90">-90</option>
-        <option value="90+">90+</option>
-        <option value="-100">-100</option>
-        <option value="-110">-110</option>
-        <option value="-125">-125</option>
-        <option value="-140">-140</option>
-        <option value="140+">140+</option>
-      </select>
-      <select id="fedselect">
-        <option value="all" selected>All Feds</option>
-        <option value="tested">All Drug-Tested Feds</option>
-        <optgroup label="United States">
-          <option value="RPS">RPS (2014+)</option>
-          <option value="RUPC">RUPC</option>
-          <option value="SPF">SPF (Incomplete)</option>
-          <option value="USAPL">USAPL (2014+)</option>
-          <option value="USPA">USPA</option>
-          <option value="USPF">USPF (Incomplete)</option>
-        </optgroup>
-        <optgroup label="Australia">
-          <option value="PA">PA (Incomplete)</option>
-          <option value="ProRaw">ProRaw (Incomplete)</option>
-        </optgroup>
-      </select>
-      <input type="checkbox" id="men" checked="true">
-      <label for="men"><span></span>Men</label>
-      <input type="checkbox" id="women" checked="true">
-      <label for="women"><span></span>Women</label>
-      <select id="weighttype">
-        <option value="lb">lbs</option>
-        <option value="kg">kg</option>
-      </select>
+        <select id="weighttype">
+          <option value="lb">lbs</option>
+          <option value="kg">kg</option>
+        </select>
       </div>
     </div>
-    <div id="theGrid"></div>
+    <div id="theGrid">
+      <p>
+      There was an error loading JavaScript -- that happens on some Apple devices.</br>
+      If you're on a desktop, loading the site in Firefox or Chrome will work.</br>
+      </p>
+      <p>
+      We're working on fixing this, but the fix involves rewriting the whole site,
+      so it's likely to take a while.
+      </p>
+      <p>
+      In the meantime, if you'd like, you can take a look at the</br>
+      <i>(UNFINISHED WORK IN PROGRESS LOTS OF BUGS)</i></br>
+      new version, here: <a href="http://beta.openpowerlifting.org">http://beta.openpowerlifting.org</a>.
+      </p>
+      <p>
+      That will at least load on phones, even if it's not ready yet.
+      </p>
     </div>
-  </body>
+  </div>
+</body>
 </html>

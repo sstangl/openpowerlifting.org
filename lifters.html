@@ -1,28 +1,62 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <meta charset="utf-8">
-    <title>Open Powerlifting</title>
-    <link rel="stylesheet" type="text/css" href="slick.grid.css"/>
-    <script src="scripts/jquery-slickgrid-2.2.6.min.js"></script>
-    <script src="scripts/openpowerlifting.js"></script>
-    <script src="scripts/meets.js"></script>
-    <script src="scripts/common.js"></script>
-    <script src="scripts/database.js"></script>
-    <script src="scripts/main-lifters.js" defer></script>
-    <link rel="stylesheet" type="text/css" href="style.css"/>
+    <link rel="stylesheet" type="text/css" href="static/slick.grid.css"/>
+    <script src="static/scripts/jquery-slickgrid-2.2.6.min.js"></script>
+<title>OpenPowerlifting</title>
+<meta charset="utf-8">
+<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<link rel="stylesheet" type="text/css" href="static/style.css"/>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-82103130-1', 'auto');
+  ga('send', 'pageview');
+</script>
+    <script src="static/scripts/social-media.js"></script>
+    <script src="static/scripts/openpowerlifting.js"></script>
+    <script src="static/scripts/meets.js"></script>
+    <script src="static/scripts/common.bundle.js"></script>
+    <script src="static/scripts/lifters.bundle.js" defer></script>
   </head>
   <body>
     <div class="flexbox">
 <div id="header">
-OpenPowerlifting &mdash;
-<a href="index.html">Rankings</a>
-<a href="meetlist.html">Meets</a>
-<a href="https://github.com/sstangl/openpowerlifting">Source</a>
- (92,330 Entries)
+<img class="header-logo" src="static/images/logo-compressed.svg" alt="OpenPowerlifting"/>
+<a href="index.html" class="nav__link ">Rankings</a>
+<a href="meetlist.html" class="nav__link ">Meets</a>
+<a href="data.html" class="nav__link ">Data</a>
+<a href="faq.html" class="nav__link ">FAQ</a>
+<a href="contact.html" class="nav__link ">Contact</a>
+<a href="https://www.patreon.com/openpowerlifting" class="nav__link" rel="noopener" target="_blank">Support Us&nbsp;<img style="height: 15px; width: 15px"src="static/images/patreon_navigation_logo_mini_orange.png"/></a>
+<a href="https://instagram.com/openpowerlifting" class="nav__link" rel="noopener" target="_blank"><i class="fa fa-instagram"></i></a>
+<a href="https://facebook.com/openpowerlifting" class=" nav__link" rel="noopener" target="_blank"><i class="fa fa-facebook"></i></a>
+<a class="nav__link header-hamburger" href="javascript:void(0)" onClick="document.getElementById('header').classList.toggle('responsive')">&#9776;</a>
+<span class="siteinfo">
+640,507 Entries &mdash; 13,243 Meets &mdash; Updated 2018-06-29
+</span>
 </div>
-      <div id="controls"><span id="lifter">No lifter specified.</span></div>
-      <div id="theGrid"></div>
+      <div id="controls">
+        <div id="controls-left">
+          <span id="lifter"></span>
+        </div>
+        <div id="controls-right">
+          <select id="weighttype">
+            <option value="lb">lbs</option>
+            <option value="kg">kg</option>
+          </select>
+        </div>
+      </div>
+      <div id="theGrid">
+        Error loading database (or it's just taking a really long time).</br>
+        If it's taking too long, you can switch to our secret beta site by clicking this button: <button onclick="window.location=document.URL.replace('https://www.','http://beta.')">Switch to Beta!</button></br>
+        Not everything is implemented yet, still lots to do. Send feedback!
+      </div>
+      <div class="info">
+        Requests / Corrections / Feedback: <a href="mailto:updates@openpowerlifting.org">updates@openpowerlifting.org</a>.
+      </div>
     </div>
   </body>
 </html>
